@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mellow Studio — شرح حملة الإيميل الأوتوماتيكية</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #f5f0e8;
+  --dark: #141414;
+  --orange: #c8651a;
+  --muted: #7a736b;
+  --border: #e2d9cc;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--dark);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  background: rgba(20,20,20,0.93);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 0 48px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  direction: rtl;
+}
+.nav-logo { font-family:'Playfair Display',serif; font-size:1.4rem; color:#fff; }
+.nav-logo span { color:var(--orange); }
+.nav-links { display:flex; gap:6px; list-style:none; direction:ltr; }
+.nav-links a {
+  color:rgba(255,255,255,0.4); text-decoration:none;
+  font-size:0.76rem; padding:5px 13px; border-radius:20px;
+  transition:all 0.2s; font-family:'DM Sans',sans-serif;
+}
+.nav-links a:hover { color:#fff; background:rgba(255,255,255,0.08); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:120px 40px 80px; position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(200,101,26,0.13) 0%, transparent 70%);
+}
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid rgba(200,101,26,0.4); background:rgba(200,101,26,0.08);
+  color:var(--orange); padding:7px 18px; border-radius:30px;
+  font-size:0.78rem; letter-spacing:0.1em; margin-bottom:36px;
+  position:relative; z-index:2;
+}
+.hero-badge::before {
+  content:''; width:6px; height:6px; border-radius:50%; background:var(--orange);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+.hero-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.6rem,6vw,5.5rem); line-height:1.1;
+  color:#fff; max-width:900px; position:relative; z-index:2; margin-bottom:12px;
+}
+.hero-title em { font-style:italic; color:var(--orange); }
+.hero-sub {
+  font-size:1.05rem; color:rgba(255,255,255,0.45); max-width:560px;
+  line-height:1.8; position:relative; z-index:2; margin:16px auto 48px;
+  font-family:'DM Sans',sans-serif;
+}
+.hero-scroll {
+  position:relative; z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  color:rgba(255,255,255,0.25); font-size:0.72rem; letter-spacing:0.12em;
+  animation: bounce 2s infinite;
+}
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+.hero-scroll svg { width:18px;height:18px;stroke:rgba(255,255,255,0.25);fill:none;stroke-width:2; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.hero > * { animation: fadeUp 0.8s ease both; }
+.hero > *:nth-child(1){animation-delay:.1s}
+.hero > *:nth-child(2){animation-delay:.25s}
+.hero > *:nth-child(3){animation-delay:.4s}
+.hero > *:nth-child(4){animation-delay:.55s}
+.hero > *:nth-child(5){animation-delay:.7s}
+
+/* SHARED */
+.section-label {
+  font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--orange); margin-bottom:16px; font-family:'DM Sans',sans-serif;
+}
+.section-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,3.5vw,2.8rem); color:#fff; line-height:1.2;
+}
+.section-title em { font-style:italic; color:var(--orange); }
+
+/* STEP BLOCKS */
+.step-block {
+  max-width:1200px; margin:0 auto 6px; padding:0 32px;
+  opacity:0; transform:translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.step-block.visible { opacity:1; transform:translateY(0); }
+
+.step-card {
+  display:grid; grid-template-columns:1fr 1fr; gap:0;
+  border-radius:20px; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.07);
+  background:#1a1a1a; min-height:480px;
+}
+.step-card.reverse { direction:ltr; }
+.step-card.reverse .step-text { direction:rtl; }
+
+.step-text {
+  padding:56px 52px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.step-num-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:48px; height:48px; border-radius:12px;
+  font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700;
+  color:#fff; margin-bottom:28px; align-self:flex-start;
+}
+.step-text h2 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.4rem,2vw,2rem); color:#fff; line-height:1.2; margin-bottom:10px;
+}
+.step-text h2 em { font-style:italic; color:var(--orange); }
+.step-en {
+  font-family:'DM Sans',sans-serif; font-size:0.78rem;
+  color:rgba(255,255,255,0.22); letter-spacing:0.06em; margin-bottom:20px; text-transform:uppercase;
+}
+.step-desc { color:rgba(255,255,255,0.6); line-height:1.85; font-size:0.95rem; margin-bottom:28px; }
+.highlights { display:flex; flex-direction:column; gap:10px; }
+.hl-item {
+  display:flex; align-items:flex-start; gap:10px;
+  font-size:0.87rem; color:rgba(255,255,255,0.5); line-height:1.5;
+}
+.hl-dot { width:6px;height:6px;border-radius:50%;background:var(--orange);margin-top:6px;flex-shrink:0; }
+.callout {
+  border-radius:10px; padding:14px 18px; margin-top:22px;
+  font-size:0.84rem; line-height:1.6;
+  border:1px solid rgba(200,101,26,0.28); background:rgba(200,101,26,0.07);
+  color:rgba(255,255,255,0.55);
+}
+.callout strong { color:var(--orange); }
+
+.step-img {
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; padding:32px;
+}
+.step-img img {
+  max-width:100%; max-height:420px; object-fit:contain;
+  border-radius:12px; box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  position:relative; z-index:2; transition:transform 0.4s ease;
+}
+.step-img:hover img { transform:scale(1.03); }
+.step-img::before { content:''; position:absolute; inset:0; opacity:0.25; z-index:1; }
+
+/* Color themes */
+.s1 { background:linear-gradient(135deg,#1a1a1a 0%,#1e2535 100%); }
+.s1 .step-num-badge { background:#1e3a5f; }
+.s1 .step-img::before { background:radial-gradient(circle at center,#1e3a5f,transparent); }
+.s2 { background:linear-gradient(135deg,#1a1a1a 0%,#1e2820 100%); }
+.s2 .step-num-badge { background:#1a3a2a; }
+.s2 .step-img::before { background:radial-gradient(circle at center,#1a3a2a,transparent); }
+.s3 { background:linear-gradient(135deg,#1a1a1a 0%,#28201e 100%); }
+.s3 .step-num-badge { background:#3a2a1a; }
+.s3 .step-img::before { background:radial-gradient(circle at center,#3a2a1a,transparent); }
+.s4-result { background:linear-gradient(135deg,#0f1a0f 0%,#0a1a2a 100%); }
+.s4-result .step-num-badge { background:#1a3a2a; }
+
+/* ── RESULT SECTION (merged 3 images) ── */
+.result-section {
+  max-width:1200px; margin:0 auto 6px; padding:0 32px;
+  opacity:0; transform:translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.result-section.visible { opacity:1; transform:translateY(0); }
+
+.result-card {
+  border-radius:20px; overflow:hidden;
+  border:1px solid rgba(200,101,26,0.25);
+  background:linear-gradient(135deg,#0d1a0d 0%,#0a1520 50%,#1a0d0a 100%);
+  position:relative;
+}
+
+.result-card::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(200,101,26,0.1) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+.result-header {
+  padding:52px 52px 40px;
+  position:relative; z-index:2;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:32px;
+  flex-wrap:wrap;
+}
+
+.result-header-text { flex:1; min-width:280px; }
+
+.result-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid rgba(200,101,26,0.5); background:rgba(200,101,26,0.1);
+  color:var(--orange); padding:6px 16px; border-radius:30px;
+  font-size:0.74rem; letter-spacing:0.1em; margin-bottom:20px;
+  font-family:'DM Sans',sans-serif;
+}
+.result-badge::before {
+  content:''; width:6px;height:6px;border-radius:50%;background:var(--orange);
+  animation:pulse 2s infinite;
+}
+
+.result-header h2 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,2.5vw,2.4rem); color:#fff; line-height:1.2; margin-bottom:14px;
+}
+.result-header h2 em { font-style:italic; color:var(--orange); }
+
+.result-header p {
+  color:rgba(255,255,255,0.5); font-size:0.95rem; line-height:1.7; max-width:480px;
+}
+
+/* Stats row */
+.result-stats {
+  display:flex; gap:32px; flex-wrap:wrap; margin-top:28px;
+}
+.stat-item { display:flex; flex-direction:column; gap:4px; }
+.stat-num {
+  font-family:'Playfair Display',serif; font-size:1.8rem; color:#fff; line-height:1;
+}
+.stat-lbl { font-size:0.75rem; color:rgba(255,255,255,0.3); font-family:'DM Sans',sans-serif; letter-spacing:0.06em; }
+
+/* Flow indicator */
+.flow-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:10px 16px;
+  font-family:'DM Sans',sans-serif; font-size:0.78rem; color:rgba(255,255,255,0.4);
+  align-self:flex-start; margin-top:8px;
+}
+.flow-pill svg { width:14px;height:14px;stroke:var(--orange);fill:none;stroke-width:2; }
+.flow-pill strong { color:rgba(255,255,255,0.7); }
+
+/* Phone strip */
+.phones-strip {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:0;
+  padding:0 0 0;
+  position:relative; z-index:2;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+
+.phone-col {
+  padding:32px 28px;
+  border-right:1px solid rgba(255,255,255,0.06);
+  display:flex; flex-direction:column; gap:16px;
+}
+.phone-col:last-child { border-right:none; }
+
+.phone-col-label {
+  font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--orange); font-family:'DM Sans',sans-serif;
+  padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.07);
+}
+
+.phone-frame {
+  background:#0a0a0a;
+  border-radius:28px;
+  border:4px solid #222;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  position:relative;
+}
+.phone-frame img {
+  width:100%; display:block;
+}
+
+/* Explanation under each phone */
+.phone-note {
+  font-size:0.82rem; color:rgba(255,255,255,0.4); line-height:1.6;
+}
+.phone-note strong { color:rgba(255,255,255,0.75); display:block; margin-bottom:4px; font-size:0.85rem; }
+
+/* Connector arrows between phones */
+.phones-strip-wrapper { position:relative; }
+.strip-arrow {
+  position:absolute; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  z-index:10;
+  color:rgba(255,255,255,0.15); font-size:0.6rem; letter-spacing:0.08em;
+  font-family:'DM Sans',sans-serif;
+}
+.strip-arrow svg { width:20px;height:20px;stroke:rgba(200,101,26,0.4);fill:none;stroke-width:2; }
+
+/* SUMMARY */
+.summary {
+  text-align:center; padding:100px 40px;
+  background:#0f0f0f;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.summary-steps {
+  display:flex; justify-content:center; gap:0; flex-wrap:wrap;
+  max-width:900px; margin:48px auto 0;
+}
+.sum-step {
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding:24px 28px; flex:1; min-width:130px; position:relative;
+}
+.sum-step::after {
+  content:'→'; position:absolute; right:-8px; top:50%; transform:translateY(-50%);
+  color:rgba(255,255,255,0.12); font-size:1.2rem;
+}
+.sum-step:last-child::after { display:none; }
+.sum-icon {
+  width:52px;height:52px; border-radius:14px;
+  background:rgba(200,101,26,0.1); border:1px solid rgba(200,101,26,0.22);
+  display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+}
+.sum-label { font-size:0.77rem; color:rgba(255,255,255,0.4); text-align:center; line-height:1.4; }
+
+.big-quote {
+  font-family:'Playfair Display',serif; font-style:italic;
+  font-size:clamp(1.5rem,3vw,2.4rem); color:rgba(255,255,255,0.8);
+  max-width:640px; margin:80px auto 16px; line-height:1.35;
+}
+.quote-attr {
+  font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
+  color:rgba(255,255,255,0.22); font-family:'DM Sans',sans-serif;
+}
+
+/* FOOTER */
+footer {
+  background:#0a0a0a; border-top:1px solid rgba(255,255,255,0.05);
+  padding:32px 48px;
+  display:flex; justify-content:space-between; align-items:center;
+  direction:rtl; flex-wrap:wrap; gap:12px;
+}
+.footer-logo { font-family:'Playfair Display',serif; font-size:1.1rem; color:rgba(255,255,255,0.45); }
+.footer-copy { font-size:0.78rem; color:rgba(255,255,255,0.18); font-family:'DM Sans',sans-serif; }
+
+/* RESPONSIVE */
+@media(max-width:860px) {
+  .step-card { grid-template-columns:1fr; min-height:auto; }
+  .step-card.reverse { direction:rtl; }
+  .step-img { min-height:240px; padding:20px; }
+  .step-text { padding:32px 24px; }
+  .phones-strip { grid-template-columns:1fr; }
+  .phone-col { border-right:none; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .result-header { padding:32px 24px 24px; }
+  nav { padding:0 20px; }
+  .nav-links { display:none; }
+  footer { padding:24px; flex-direction:column; align-items:flex-start; }
+}
+
+/* Timeline intro */
+.timeline-intro {
+  text-align:center; padding:80px 40px 64px;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Mellow <span>Studio</span></div>
+  <ul class="nav-links">
+    <li><a href="#s1">الموقع</a></li>
+    <li><a href="#s2">الحملة</a></li>
+    <li><a href="#s3">الأتمتة</a></li>
+    <li><a href="#result">📧 النتيجة</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Email Automation · شرح الحملة</div>
+  <h1 class="hero-title">من الإعداد إلى<br><em>الإيميل في الإنبوكس</em></h1>
+  <p class="hero-sub">شرح مفصّل لكل خطوة — من تصميم الموقع، ضبط الحملة، الأتمتة، وحتى شكل الإيميل اللي وصل للمشترك على موبايله.</p>
+  <div class="hero-scroll">
+    <span>SCROLL</span>
+    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<div style="padding-top:0">
+  <div class="timeline-intro">
+    <p class="section-label">Step by Step · خطوة بخطوة</p>
+    <h2 class="section-title">شرح كل صورة <em>بالتفصيل</em></h2>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-block" id="s1">
+    <div class="step-card s1">
+      <div class="step-text">
+        <div class="step-num-badge">١</div>
+        <div class="step-en">Image 1 — The Website</div>
+        <h2>موقع Mellow Studio<br><em>الواجهة الرئيسية</em></h2>
+        <p class="step-desc">هذه الواجهة الأمامية لموقع Mellow Studio مبنية بـ HTML وCSS. الموقع يمثل هوية البراند الكاملة — بسيط وأنيق، وهو نقطة البداية اللي بيجي منها المشتركون.</p>
+        <div class="highlights">
+          <div class="hl-item"><div class="hl-dot"></div><span>اسم البراند <strong>Mellow</strong> بخط Serif في الـ navbar مع روابط Work · About · Blog · Contact</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span>العنوان الرئيسي "Good design is quietly powerful" — النص الأورانج المائل هو جوهر الرسالة</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span>الـ tagline: "DESIGN · SIMPLICITY · BEAUTY" — نفس الجملة اللي بتظهر في الإيميل بعدين</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span>خلفية كريمية فاتحة — تعكس جماليات البراند الهادئة والمدروسة</span></div>
+        </div>
+      </div>
+      <div class="step-img">
+        <img src="1.png" alt="">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-block" id="s2">
+    <div class="step-card s2 reverse">
+      <div class="step-img">
+        <img src="2.png" alt="">
+
+        </div>
+      <div class="step-text">
+        <div class="step-num-badge">٢</div>
+        <div class="step-en">Image 2 — Campaign Settings in Brevo</div>
+        <h2>إعداد الحملة<br><em>في Brevo</em></h2>
+        <p class="step-desc">نافذة إعداد الحملة التسويقية كاملة داخل Brevo — كل تفاصيل الإيميل من اسمه وسطره الأول وصولاً لطريقة الإرسال.</p>
+        <div class="highlights">
+          <div class="hl-item"><div class="hl-dot"></div><span><strong>Subject:</strong> "Your Daily Dose of Inspiration and Practical Wisdom"</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span><strong>Preheader:</strong> "Unlock your potential with today's essential insights"</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span><strong>From:</strong> يستخدم <strong>%FIRSTNAME%</strong> — اسم المرسل بيتغير لاسم المشترك نفسه!</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span><strong>Tracking:</strong> Opens and clicks — لتتبع الفتحات والضغطات في الداشبورد</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span><strong>Send:</strong> Predictive Send — الذكاء الاصطناعي يحدد أفضل وقت للإرسال لكل مشترك</span></div>
+        </div>
+        <div class="callout">
+          <strong>💡 %FIRSTNAME%</strong> هو Merge Tag في Brevo — بيستبدل اسم المرسل بالاسم الأول للمشترك تلقائياً، مما يعطي شعور شخصي لكل إيميل.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-block" id="s3">
+    <div class="step-card s3">
+      <div class="step-text">
+        <div class="step-num-badge">٣</div>
+        <div class="step-en">Image 3 — Automation Workflow</div>
+        <h2>سيناريو الأتمتة<br><em>كل ٥ دقائق</em></h2>
+        <p class="step-desc">شاشة الـ Automation Workflow في Brevo — بتشوف فيها التسلسل الكامل. الأتمتة بتشتغل أوتوماتيكياً على كل مشترك جديد يدخل القائمة وبتنتج النتيجة اللي هتشوفها في القسم الجاي.</p>
+        <div class="highlights">
+          <div class="hl-item"><div class="hl-dot"></div><span>Node الأول: <strong>Send an email</strong> — يرسل الإيميل المصمم عبر Predictive Send</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span>إحصائيات مباشرة: 0 sent · 0% open · 0% click — الحملة لسه جديدة</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span>Node الثاني: <strong>Wait for 5 minutes</strong> — ينتظر ٥ دقائق قبل أي خطوة تالية</span></div>
+          <div class="hl-item"><div class="hl-dot"></div><span>زر (+) بين الخطوات — لإضافة actions جديدة في أي وقت</span></div>
+        </div>
+        <div class="callout">
+          <strong>⚡ Predictive Send</strong> — ذكاء اصطناعي بيحلل متى بيفتح كل مشترك إيميلاته، وبيرسل في اللحظة المثلى بدل وقت ثابت للكل.
+        </div>
+      </div>
+      <div class="step-img">
+        <img src="3.png" alt="">
+        </div>
+    </div>
+  </div>
+
+  <!-- RESULT SECTION — 3 merged phones -->
+  <div class="result-section" id="result">
+    <div class="result-card">
+
+      <div class="result-header">
+        <div class="result-header-text">
+          <div class="result-badge">✉ النتيجة — ما وصل للمشترك</div>
+          <h2>الإيميل الكامل<br><em>كما ظهر على الموبايل</em></h2>
+          <p>هذا هو الناتج الفعلي للأتمتة — الإيميل الكامل اللي وصل للمشترك على موبايله بعد تشغيل الـ Workflow. ٣ أجزاء تكوّن رسالة واحدة متكاملة.</p>
+          <div class="result-stats">
+            <div class="stat-item">
+              <div class="stat-num">٣</div>
+              <div class="stat-lbl">أقسام الإيميل</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">١</div>
+              <div class="stat-lbl">رسالة متكاملة</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">5min</div>
+              <div class="stat-lbl">ضبط الأتمتة</div>
+            </div>
+          </div>
+        </div>
+        <div class="flow-pill">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Automation triggered → <strong>Predictive Send</strong> → وصل الإنبوكس</span>
+        </div>
+      </div>
+
+      <!-- 3 Phones -->
+      <div class="phones-strip">
+
+        <div class="phone-col">
+          <div class="phone-col-label">📧 الجزء الأول — Hero Section</div>
+          <div class="phone-frame">
+           <img src="4.jpeg" alt="">
+            </div>
+          <div class="phone-note">
+            <strong>أعلى الإيميل — أول ما يفتحه المشترك</strong>
+            الـ tagline "DESIGN · SIMPLICITY · BEAUTY" بالأورانج، ثم العنوان الرئيسي "Good design is quietly powerful" بنفس هوية الموقع، وأزرار CTA: Get started و Learn more.
+          </div>
+        </div>
+
+        <div class="phone-col">
+          <div class="phone-col-label">✨ الجزء الثاني — قسم المميزات</div>
+          <div class="phone-frame">
+            <img src="5.jpeg" alt="">
+          </div>
+          <div class="phone-note">
+            <strong>بطاقتان يشرحان فلسفة البراند</strong>
+            <em>Focused Details</em> — كل عنصر له مكانه، لا يُضاف شيء بلا هدف.<br>
+            <em>Lasting Quality</em> — عمل يتحمل الزمن، أساسيات كلاسيكية بلمسة عصرية.
+          </div>
+        </div>
+
+        <div class="phone-col">
+          <div class="phone-col-label">🏁 الجزء الثالث — الخاتمة والـ Footer</div>
+          <div class="phone-frame">
+              <img src="6.jpeg" alt="">
+          </div>
+          <div class="phone-note">
+            <strong>ختام أنيق + بيانات الإرسال القانونية</strong>
+            اقتباس دافينشي "Simplicity is the ultimate sophistication" مع بوردر الـ blockquote، ثم © Mellow Studio، إيميل المستلم، رابط Unsubscribe، و%SENDER-INFO% الإلزامي.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- end timeline -->
+
+<!-- SUMMARY -->
+<section class="summary">
+  <p class="section-label">Full Journey · الرحلة الكاملة</p>
+  <h2 class="section-title">من الإعداد إلى <em>الإنبوكس</em></h2>
+  <div class="summary-steps">
+    <div class="sum-step"><div class="sum-icon">🌐</div><div class="sum-label">تصميم<br>الموقع</div></div>
+    <div class="sum-step"><div class="sum-icon">⚙️</div><div class="sum-label">إعداد<br>الحملة</div></div>
+    <div class="sum-step"><div class="sum-icon">🔄</div><div class="sum-label">أتمتة<br>٥ دقائق</div></div>
+    <div class="sum-step"><div class="sum-icon">🤖</div><div class="sum-label">Predictive<br>Send</div></div>
+    <div class="sum-step"><div class="sum-icon">📱</div><div class="sum-label">وصل<br>الموبايل</div></div>
+  </div>
+  <p class="big-quote">"Simplicity is the ultimate sophistication."</p>
+  <p class="quote-attr">— Leonardo da Vinci</p>
+</section>
+
+<footer>
+  <div class="footer-logo">Mellow Studio</div>
+  <div class="footer-copy">Email Marketing Automation · Brevo · Predictive Send · 2026</div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.step-block, .result-section').forEach(b => obs.observe(b));
+</script>
+</body>
+</html>
